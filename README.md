@@ -1,6 +1,6 @@
 # robot_arm_motion
 
-## System structure and Data Flow Diagram
+## System structure and Data flow diagram
 ```mermaid
 graph TD
     subgraph Local_PC
@@ -12,8 +12,8 @@ graph TD
 
     subgraph Backend_Core[Python Backend Core]
         B1[Mathematical Model / Simulation Engine]
-        B2[Device Communication (USB/UART)]
-        B3[Data Logging / Storage (Log/DB)]
+        B2[Device Communication USB/UART]
+        B3[Data Logging / Storage Log/DB]
         B4[API Server (Flask/FastAPI)]
     end
 
