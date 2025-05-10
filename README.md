@@ -12,15 +12,15 @@ graph TD
 
     subgraph Backend_Core[Python Backend Core]
         B1[Mathematical Model / Simulation Engine]
-        B2[Device Communication USB/UART]
-        B3[Data Logging / Storage Log/DB]
-        B4[API Server (Flask/FastAPI)]
+        B2[Device Communication - USB/UART]
+        B3[Data Logging / Storage - Log/DB]
+        B4[API Server Flask/FastAPI]
     end
 
     subgraph Web_Client
-        C1[Web UI (HTML + JavaScript)]
+        C1[Web UI - HTML + JavaScript]
         C2[Result Visualization]
-        C3[Data Charts (Plotly.js)]
+        C3[Data Charts - Plotly.js]
         C4[Control Commands]
     end
 
