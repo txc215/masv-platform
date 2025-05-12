@@ -3,45 +3,40 @@
 ## System structure and Data flow diagram
 ```mermaid
 graph TD
-    subgraph Local_PC
-        A1[wxPython UI]
-        A2[Panda3D Visualization]
-        A3[Parameter Adjustment]
-        A4[Real-Time Simulation Data]
-    end
+  subgraph User Interface
+    A1[model_viewer<br/>(Desktop App for Model Control)]
+    A2[result_viewer<br/>(Web App for Result Visualization)]
+  end
 
-    subgraph Backend_Core[Python Backend Core]
-        B1[Mathematical Model / Simulation Engine]
-        B2[Device Communication - USB/UART]
-        B3[Data Logging / Storage - Log/DB]
-        B4[API Server Flask/FastAPI]
-    end
+  subgraph Core Engine
+    B1[preprocessor.py<br/>(Data Preprocessing)]
+    B2[algorithm_manager.py<br/>(Model Selector/Dispatcher)]
+    B3[evaluator.py<br/>(Compare Output vs Expected)]
+  end
 
-    subgraph Web_Client
-        C1[Web UI - HTML + JavaScript]
-        C2[Result Visualization]
-        C3[Data Charts - Plotly.js]
-        C4[Control Commands]
-    end
+  subgraph Algorithms
+    C1[Kalman Filter]
+    C2[RNN Model]
+    C3[PID Controller]
+  end
 
-    %% Connections
-    A1 --> A2
-    A1 --> A3
-    A1 --> A4
-    A3 --> B1
-    A2 --> B1
-    A4 --> B1
+  subgraph Data I/O
+    D1[input_sample.csv]
+    D2[model_config.yaml]
+    D3[result_output.json]
+  end
 
-    C1 --> C2
-    C1 --> C3
-    C1 --> C4
+  A1 --> B1
+  A2 --> B3
+  B1 --> B2
+  B2 --> C1
+  B2 --> C2
+  B2 --> C3
+  C1 --> B3
+  C2 --> B3
+  C3 --> B3
+  D1 --> B1
+  D2 --> B2
+  B3 --> D3
 
-    B1 --> B2
-    B2 --> B1
-    B1 --> B3
-    B3 --> C3
-
-    C4 --> B4
-    B4 --> B1
-    B4 --> C2
 ```
