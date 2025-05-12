@@ -4,14 +4,14 @@
 ```mermaid
 graph TD
   subgraph User Interface
-    A1[model_viewer<br/>(Desktop App for Model Control)]
-    A2[result_viewer<br/>(Web App for Result Visualization)]
+    A1[model_viewer<br/>Desktop App for Model Control]
+    A2[result_viewer<br/>Web App for Result Visualization]
   end
 
   subgraph Core Engine
-    B1[preprocessor.py<br/>(Data Preprocessing)]
-    B2[algorithm_manager.py<br/>(Model Selector/Dispatcher)]
-    B3[evaluator.py<br/>(Compare Output vs Expected)]
+    B1[preprocessor.py<br/>Data Preprocessing]
+    B2[algorithm_manager.py<br/>Model Selector/Dispatcher]
+    B3[evaluator.py<br/>Compare Output vs Expected]
   end
 
   subgraph Algorithms
