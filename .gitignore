@@ -1,9 +1,9 @@
-# macOS 系統產生的垃圾檔
+# macOS system un related files
 .DS_Store
 .AppleDouble
 .LSOverride
 
-# Python 編譯 & 暫存檔
+# Python edit and tmp
 __pycache__/
 *.py[cod]
 *$py.class
@@ -19,7 +19,7 @@ venv/
 # VSCode settings
 .vscode/
 
-# pip log 檔
+# pip log files
 pip-log.txt
 pip-delete-this-directory.txt
 
