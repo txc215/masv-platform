@@ -172,3 +172,20 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# VSCode setup
+.vscode/
+
+# zshrc
+.zshrc
+
+# Jupyter Notebook generated .nbconvert folder
+__converted__/
+
+# macOS system un-related files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Conda enviroment extra
+.venv/
