@@ -1,4 +1,4 @@
-# robot_arm_motion
+# Simulation and Verification Environment
 
 ## System structure and Data flow diagram
 ```mermaid
