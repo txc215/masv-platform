@@ -1,0 +1,5 @@
+imu_node:
+  ros__parameters:
+    imu_topic: "/imu/data"
+    imu_rate: 100.0
+    frame_id: "imu_link"
