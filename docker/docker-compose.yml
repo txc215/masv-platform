@@ -1,0 +1,17 @@
+services:
+  ros2-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ros2-dev-container
+    volumes:
+      - ../ros2_ws:/root/ros2_ws      # 
+      - ../core_algorithms:/root/core_algorithms
+      - ../motion_models:/root/motion_models
+      - ../data:/root/data
+    environment:
+      - PYTHONPATH=/root/core_algorithms:/root/motion_models
+    working_dir: /root/ros2_ws
+    tty: true
+    command: bash
+

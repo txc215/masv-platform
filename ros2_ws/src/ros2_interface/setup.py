@@ -1,4 +1,8 @@
 from setuptools import setup
+import os
+import sys
+
+sys.path.insert(0, os.path.expanduser('/root/core_algorithms'))
 
 package_name = 'ros2_interface'
 
@@ -7,6 +11,7 @@ setup(
     version='0.0.0',
     packages=['interface_nodes'],
     data_files=[
+        ('share/ros2_interface/launch', ['launch/simulation_launch.py']),
         ('share/ament_index/resource_index/packages',
          ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
@@ -20,7 +25,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'sensor_node = interface_nodes.sensor_node:main',
+            'log_replay_node = interface_nodes.log_replay_node:main',
+            'ekf_node = interface_nodes.ekf_node:main',
         ],
     },
 )

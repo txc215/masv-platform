@@ -2,6 +2,17 @@
 .DS_Store
 .AppleDouble
 .LSOverride
+Thumbs.db
+
+# ROS 2 build artifacts
+build/
+install/
+log/
+
+# ROS 2 colcon artifacts
+.colcon/
+*.pyc
+__pycache__/
 
 # Python edit and tmp
 __pycache__/
@@ -47,3 +58,4 @@ __converted__/
 *.log
 *.tmp
 *.bak
+*.swp

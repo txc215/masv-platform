@@ -3,40 +3,48 @@
 ## System structure and Data flow diagram
 ```mermaid
 graph TD
-  subgraph User Interface
-    A1[model_viewer<br/>Desktop App for Model Control]
-    A2[result_viewer<br/>Web App for Result Visualization]
-  end
+    A[main.py] --> B[core_algorithms]
+    A --> C[motion_models]
+    A --> D[simulation_core]
+    A --> E[data]
+    A --> F[model_viewer]
+    A --> G[result_viewer]
+    A --> H[ros2_ws]
 
-  subgraph Core Engine
-    B1[preprocessor.py<br/>Data Preprocessing]
-    B2[algorithm_manager.py<br/>Model Selector/Dispatcher]
-    B3[evaluator.py<br/>Compare Output vs Expected]
-  end
+    subgraph Algorithm Layer
+        B --> B1[EKF/UKF]
+        B --> B2[RNN/PINN/Transformer]
+    end
 
-  subgraph Algorithms
-    C1[Kalman Filter]
-    C2[RNN Model]
-    C3[PID Controller]
-  end
+    subgraph Motion Modeling
+        C --> C1[BicycleModel]
+        C --> C2[Kinematics Utils]
+    end
 
-  subgraph Data I/O
-    D1[input_sample.csv]
-    D2[model_config.yaml]
-    D3[result_output.json]
-  end
+    subgraph Simulation Layer
+        D --> D1[simulator.py]
+        D --> C
+        D --> B
+        D --> E
+    end
 
-  A1 --> B1
-  A2 --> B3
-  B1 --> B2
-  B2 --> C1
-  B2 --> C2
-  B2 --> C3
-  C1 --> B3
-  C2 --> B3
-  C3 --> B3
-  D1 --> B1
-  D2 --> B2
-  B3 --> D3
+    subgraph Data Layer
+        E --> E1[sample_inputs]
+        E --> E2[rosbag_logs]
+        E --> E3[sample_outputs]
+    end
+
+    subgraph Viewer
+        F --> F1[wxPython viewer]
+        G --> G1[Flask result viewer]
+    end
+
+    subgraph ROS2 Integration
+        H --> H1[ros2_interface]
+        H --> H2[ai_models_node]
+        H --> H3[visualization]
+        H --> C
+        H --> B
+    end
 
 ```

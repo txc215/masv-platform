@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib
+import matplotlib.colors as mcolors
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -11,6 +12,7 @@ curr_path = os.path.dirname(os.path.abspath(__file__))
 
 __simple_data__ = curr_path + "/../data/sample_inputs/dummy_gnss_imu.csv"
 __output_data__ = curr_path + "/../data/sample_outputs/dummy_gnss_imu_ekf.csv"
+__test_out_data__ = curr_path + "/../data/sample_outputs/dummy_data.csv"
 
 class ViewerFrame(wx.Frame):
     def __init__(self, parent, title = "Plot data", size=(400, 200)):
@@ -32,8 +34,14 @@ class ViewerFrame(wx.Frame):
         self.plot_btn = wx.Button(panel, label="Load Data")
         # event binding
         self.plot_btn.Bind(wx.EVT_BUTTON, self.on_load_model)
+
+        self.plot_test_btn = wx.Button(panel, label="Test Data")
+        self.plot_test_btn.Bind(wx.EVT_BUTTON, self.on_load_test_data)
+
         ctrl_sizer = wx.BoxSizer(wx.HORIZONTAL)
         ctrl_sizer.Add(self.plot_btn, 0, wx.ALL)
+
+
 
         vbox.Add(ctrl_sizer, proportion=0, flag=wx.CENTER)
         # vbox.Add(plot_sizer, 1, border=15)
@@ -44,6 +52,38 @@ class ViewerFrame(wx.Frame):
         self.Show()
         self.Layout()
 
+    def on_load_test_data(self, event):
+        
+        test_df = pd.read_csv(__test_out_data__, sep = '\t')
+
+        col_list = test_df.columns.tolist()
+        data_col_n = len(col_list)
+        
+        data_len = len(test_df[col_list[0]])
+
+        data_sets = {}
+        for j in range(data_col_n):
+            data_sets[col_list[j]] = []
+
+        for i in range(data_len):
+            for j in range(data_col_n):
+                data_sets[col_list[j]].append(test_df[col_list[j]][i])
+
+        css4_col = list(mcolors.CSS4_COLORS.keys())
+        color_len = len(css4_col)
+
+        self.axes.clear()
+
+        for i in range(1, data_col_n):
+            self.axes.plot(data_sets[col_list[0]], data_sets[col_list[i]], label=col_list[i], color=css4_col[(i+10)%color_len])
+
+        self.axes.set_title("Test data")
+        self.axes.legend()
+        self.canvas.draw()
+
+
+
+
     def mag_to_heading(self, mag_x_uT, mag_y_uT):
 
         heading_rad = np.arctan2(-mag_y_uT, mag_x_uT)
@@ -52,6 +92,8 @@ class ViewerFrame(wx.Frame):
             heading_rad += 2 * np.pi
         
         return heading_rad
+
+
 
     def on_load_model(self, event):
 

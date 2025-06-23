@@ -1,0 +1,22 @@
+{
+  "name": "ros2-dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers"
+      ]
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/ros2_ws,target=/home/dev/ros2_ws,type=bind"
+  ],
+  "workspaceFolder": "/home/dev/ros2_ws"
+}

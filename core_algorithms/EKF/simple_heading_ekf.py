@@ -1,15 +1,19 @@
 import numpy as np
 import pandas as pd
 import os
+import sys
+
+sys.path.insert(0, '../')
+from base_algorithm import BaseAlgorithm
 
 curr_path = os.path.dirname(os.path.abspath(__file__))
 
-__simple_data__ = curr_path + "/../../../data/sample_inputs/dummy_gnss_imu.csv"
-__output_data__ = curr_path + "/../../../data/sample_outputs/dummy_gnss_imu_ekf.csv"
+__simple_data__ = curr_path + "/../../data/sample_inputs/dummy_gnss_imu.csv"
+__output_data__ = curr_path + "/../../data/sample_outputs/dummy_gnss_imu_ekf.csv"
 
 
-class SimpleHeadingEKF:
-    def __init__(self):
+class SimpleHeadingEKF(BaseAlgorithm):
+    def __init__(self, cfg=None):
         self.heading = 0.0  # init heading (rad)
         self.bias = 0.0     # Gyro bias
         self.P = np.eye(2)  # covariance matrix
@@ -17,6 +21,9 @@ class SimpleHeadingEKF:
         # Noise parameter
         self.Q = np.diag([0.01, 0.001])  # Process noise: heading, bias
         self.R = 0.05                    # Measurement noise (magnetometer or GNSS heading)
+
+    def step(self, input_val: dict) -> dict:
+        pass
 
     def predict(self, gyro_z, dt):
         """Predict：use gyro data udpate heading"""
