@@ -1,0 +1,10 @@
+ekf_node:
+  ros__parameters:
+    dt_max: 0.2
+    dt_min: 0.001
+    Q_diag: [0.001, 0.001]      # process noise: heading, rate
+    R_mag: 0.05                 # mag heading noise
+    R_gnss: 0.5                 # gnss heading noise
+    P0_diag: [0.1, 0.1]         # initial uncertainty
+    log_path: "/root/data/sample_inputs/dummy_gnss_imu.csv"
+
