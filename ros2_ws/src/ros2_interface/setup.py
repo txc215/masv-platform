@@ -9,7 +9,7 @@ package_name = 'ros2_interface'
 setup(
     name=package_name,
     version='0.0.0',
-    packages=['interface_nodes'],
+    packages=['interface_nodes', 'ai_models_nodes'],
     data_files=[
         ('share/ros2_interface/launch', ['launch/simulation_launch.py']),
         ('share/ament_index/resource_index/packages',
@@ -26,7 +26,8 @@ setup(
     entry_points={
         'console_scripts': [
             'log_replay_node = interface_nodes.log_replay_node:main',
-            'ekf_node = interface_nodes.ekf_node:main',
+            'ekf_node = ai_models_nodes.ekf_node:main',
+            'ukf_node = ai_models_nodes.ukf_node:main'
         ],
     },
 )

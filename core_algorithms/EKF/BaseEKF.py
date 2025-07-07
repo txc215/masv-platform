@@ -16,6 +16,36 @@ else:
 
 
 class EKFAlgorithm(BaseAlgorithm):
+    # def __init__(self, initial_state, initial_covariance, f_func, f_jacobian,
+    #              h_models, Q, R_dict):
+    #     self.x = initial_state              # init state vector
+    #     self.P = initial_covariance         # covariance matrix
+    #     self.f_func = f_func                # state transition function f(x, u, dt)
+    #     self.f_jacobian = f_jacobian        # f's' Jacobian F(x, u, dt)
+    #     self.h_models = h_models            # obervation model dict: {sensor_type: (h_func, H_func)}
+    #     self.Q = Q                          # transition noise covariance matrix 
+    #     self.R = R_dict                     # observation noise covariance matrix dict: {sensor_type: R_matrix}
+
+    # def predict(self, u, dt):
+    #     F = self.f_jacobian(self.x, u, dt)
+    #     self.x = self.f_func(self.x, u, dt)
+    #     self.P = F @ self.P @ F.T + self.Q
+
+    # def update(self, z, sensor_type):
+    #     h_func, H_func = self.h_models[sensor_type]
+    #     H = H_func(self.x)
+    #     y = z - h_func(self.x)
+    #     S = H @ self.P @ H.T + self.R[sensor_type]
+    #     K = self.P @ H.T @ np.linalg.inv(S)
+    #     self.x = self.x + K @ y
+    #     self.P = (np.eye(len(self.x)) - K @ H) @ self.P
+
+    # def get_state(self):
+    #     return self.x.copy()
+
+    # def set_R(self, sensor_type, R_matrix):
+    #     self.R[sensor_type] = R_matrix
+
     def __init__(self, initial_state, initial_covariance):
         super().__init__()
         self.x = initial_state

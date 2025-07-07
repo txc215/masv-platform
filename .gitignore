@@ -1,3 +1,7 @@
+# ignore large file
+/data/rosbag_logs
+*.bag
+
 # macOS system un related files
 .DS_Store
 .AppleDouble
@@ -59,3 +63,4 @@ __converted__/
 *.tmp
 *.bak
 *.swp
+*.csv

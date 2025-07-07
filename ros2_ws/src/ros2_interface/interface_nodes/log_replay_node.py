@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Imu, NavSatFix
+from sensor_msgs.msg import Imu, NavSatFix, MagneticField
 import csv
 import time
 from rclpy.clock import ClockType
@@ -15,6 +15,7 @@ class LogReplayNode(Node):
         self.declare_parameter("frame_id", "gps_link")
         self.declare_parameter("gnss_frequency", 5.0)
         self.declare_parameter("imu_frequency", 50.0)
+        self.declare_parameter("mag_frequency", 10.0)
         self.declare_parameter("gnss_position_covariance", [0.0]*9)
         self.declare_parameter("gnss_covariance_type", 0)
 
@@ -22,26 +23,32 @@ class LogReplayNode(Node):
         self.frame_id = self.get_parameter("frame_id").value
         self.gnss_freq = self.get_parameter("gnss_frequency").value
         self.imu_freq = self.get_parameter("imu_frequency").value
+        self.mag_freq = self.get_parameter("mag_frequency").value
         self.gnss_cov = self.get_parameter("gnss_position_covariance").value
         self.gnss_cov_type = self.get_parameter("gnss_covariance_type").value
 
         self.imu_pub = self.create_publisher(Imu, '/imu/data', QoSProfile(depth=10))
         self.gnss_pub = self.create_publisher(NavSatFix, '/gnss/fix', QoSProfile(depth=10))
+        self.mag_pub = self.create_publisher(MagneticField, '/mag/data', QoSProfile(depth=10))
 
         self.load_csv()
         self.index_gnss = 0
         self.index_imu = 0
+        self.index_mag = 0
 
         # Timers
         self.create_timer(1.0 / self.imu_freq, self.publish_imu)
+        self.create_timer(1.0 / self.mag_freq, self.publish_mag)
         self.create_timer(1.0 / self.gnss_freq, self.publish_gnss)
 
     def load_csv(self):
         self.gnss_data = pd.read_csv(self.log_path, usecols=["timestamp_sec", "gnss_lat_deg", "gnss_lon_deg", "gnss_alt_m"])
+
         self.imu_data  = pd.read_csv(self.log_path, usecols=["timestamp_sec", "accel_x_mps2", "accel_y_mps2", "accel_z_mps2", \
-                                                                              "gyro_x_radps", "gyro_y_radps", "gyro_z_radps", \
-                                                                              "mag_x_uT", "mag_y_uT", "mag_z_uT"]) 
-        self.get_logger().info(f"Loaded {len(self.gnss_data)} GNSS and IMU entries.")
+                                                                              "gyro_x_radps", "gyro_y_radps", "gyro_z_radps"]) 
+        self.mag_data = pd.read_csv(self.log_path, usecols=["timestamp_sec","mag_x_uT", "mag_y_uT", "mag_z_uT"])
+
+        self.get_logger().info(f"Loaded {len(self.gnss_data)} GNSS, Magnetometer and IMU entries.")
 
     def publish_imu(self):
         if self.index_imu >= len(self.imu_data):
@@ -58,6 +65,23 @@ class LogReplayNode(Node):
 
         self.imu_pub.publish(imu_msg)
         self.index_imu += 1
+
+    def publish_mag(self):
+        if self.index_mag >= len(self.mag_data):
+            return
+
+        row = self.mag_data.iloc[self.index_mag]
+        mag_msg = MagneticField()
+        mag_msg.header.stamp = self.get_clock().now().to_msg()
+        mag_msg.header.frame_id = self.frame_id
+
+        mag_msg.magnetic_field.x = float(row['mag_x_uT'])
+        mag_msg.magnetic_field.y = float(row['mag_y_uT'])
+        mag_msg.magnetic_field.z = float(row['mag_z_uT'])
+
+        self.mag_pub.publish(mag_msg)
+        self.index_mag += 1
+
 
     def publish_gnss(self):
         if self.index_gnss >= len(self.gnss_data):

@@ -3,7 +3,8 @@ log_replay_node:
     log_path: "/root/data/sample_inputs/dummy_gnss_imu.csv"
     frame_id: "gps_link"
     gnss_frequency: 10.0    # Hz
-    imu_frequency: 10.0    # Hz
+    imu_frequency: 10.0     # Hz
+    mag_frequency: 10.0     # Hz
 
     # GNSS position covariance (used for simulated sensor noise)
     gnss_position_covariance:

@@ -25,6 +25,13 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_node',
             output='screen',
-            parameters=[os.path.join(param_dir, 'ekf_params.yaml')]
+            parameters=[os.path.join(cfg_dir, 'ekf_params.yaml')]
+        ),
+        Node(
+            package=package_name,
+            executable='ukf_node',
+            name='ukf_node',
+            output='screen',
+            parameters=[os.path.join(cfg_dir, 'ukf_params.yaml')]
         )
     ])
