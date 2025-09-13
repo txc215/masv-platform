@@ -64,7 +64,7 @@ class TransformerFusion(BaseAlgorithm):
         if len(self.sequence) < self.seq_len:
             return {"position": [0.0, 0.0, 0.0]}  # if no enough data set
 
-        # 保持固定長度
+        # maintain fix len
         self.sequence = self.sequence[-self.seq_len:]
 
         x = torch.tensor([self.sequence], dtype=torch.float32)  # [1, seq_len, 12]

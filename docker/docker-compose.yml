@@ -1,5 +1,6 @@
 services:
   ros2-dev:
+    image: local/ros2-dev:humble
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,7 +12,19 @@ services:
       - ../data:/root/data
     environment:
       - PYTHONPATH=/root/core_algorithms:/root/motion_models
+      - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
+      - BAG_DIR=${BAG_DIR}
+      - TZ=${TZ}
     working_dir: /root/ros2_ws
+    platform: linux/arm64
     tty: true
-    command: bash
+    command:
+      - /bin/bash
+      - -lc
+      - |
+        # put into container's ~/.bashrc，and run shell
+        grep -qxF 'source /opt/ros/humble/setup.bash' ~/.bashrc || echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
+        grep -qxF '[ -f ~/ros2_ws/install/setup.bash ] && source ~/ros2_ws/install/setup.bash' ~/.bashrc || echo '[ -f ~/ros2_ws/install/setup.bash ] && source ~/ros2_ws/install/setup.bash' >> ~/.bashrc
+        exec bash
 

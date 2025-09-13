@@ -2,6 +2,11 @@
 /data/rosbag_logs
 *.bag
 
+**/*.db3
+**/*.mcap
+**/metadata.yaml
+**/metadata.yml
+
 # macOS system un related files
 .DS_Store
 .AppleDouble
