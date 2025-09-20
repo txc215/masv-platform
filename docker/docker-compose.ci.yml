@@ -1,0 +1,55 @@
+services:
+  ros2-dev:
+    image: local/ros2-dev:humble
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ros2-dev-container
+    volumes:
+      - ../ros2_ws:/root/ros2_ws
+      - ../core_algorithms:/root/core_algorithms
+      - ../motion_models:/root/motion_models
+      - ../ai_models:/root/ai_models${READONLY}
+      - ../data:/root/data
+      - ../scripts:/root/scripts
+    environment:
+      - PYTHONPATH=/root/core_algorithms:/root/motion_models:/root/ai_models
+      - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
+      - GRU_MODEL=${GRU_MODEL:-/root/ai_models/gru_model_091025.onnx}
+      - TZ=${TZ}
+    working_dir: /root/ros2_ws
+    platform: ""
+    tty: true
+    command:
+      - /bin/bash
+      - -lc
+      - |
+        grep -qxF 'source /opt/ros/humble/setup.bash' ~/.bashrc || echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
+        grep -qxF '[ -f ~/ros2_ws/install/setup.bash ] && source ~/ros2_ws/install/setup.bash' ~/.bashrc || echo '[ -f ~/ros2_ws/install/setup.bash ] && source ~/ros2_ws/install/setup.bash' >> ~/.bashrc
+        exec bash
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "source /opt/ros/humble/setup.bash && ros2 --help >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  masv-dev:
+    image: local/masv-dev:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: masv-dev-container
+    volumes:
+      - ../ros2_ws:/root/ros2_ws
+      - ../core_algorithms:/root/core_algorithms
+      - ../motion_models:/root/motion_models
+      - ../ai_models:/root/ai_models
+      - ../data:/root/data
+      - ../scripts:/root/scripts
+    environment:
+      - PYTHONPATH=/root/core_algorithms:/root/ai_models:/root/motion_models
+    working_dir: /root/ros2_ws
+    platform: ""
+    tty: true
+    command: ["/bin/bash"]
