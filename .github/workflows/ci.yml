@@ -69,3 +69,15 @@ jobs:
         with:
           name: colcon-logs
           path: ros2_ws/log
+
+      - name: Debug log path
+        run: |
+          echo "Repo root contents:"
+          ls -R .
+          echo "ros2_ws/log contents:"
+          ls -R ros2_ws/log || true
+
+      - name: Debug container log path
+        working-directory: docker
+        run: |
+          docker compose exec -T ros2-dev bash -lc 'ls -R /root/ros2_ws/log || true'
