@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      GRU_MODEL: /root/ai_models/gru_model_091025.onnx
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ros2-dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          tags: local/ros2-dev:humble
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Start ros2-dev
+        working-directory: docker
+        run: |
+          docker compose up -d ros2-dev
+          # wait for passing healthcheck
+          for i in $(seq 1 10); do
+            state=$(docker inspect --format='{{.State.Health.Status}}' ros2-dev-container 2>/dev/null || echo starting)
+            echo "ros2-dev health: $state"
+            [ "$state" = "healthy" ] && break
+            sleep 3
+          done
+
+      - name: Colcon build
+        working-directory: docker
+        run: |
+          docker compose exec -T ros2-dev bash -lc '
+            set -e
+            source /opt/ros/humble/setup.bash
+            cd /root/ros2_ws
+            rm -rf build install log
+            colcon build --symlink-install --event-handlers console_direct+
+          '
+
+      - name: Run GRU launch test
+        working-directory: docker
+        run: |
+          docker compose exec -T ros2-dev bash -lc '
+            set -e
+            source /opt/ros/humble/setup.bash
+            source /root/ros2_ws/install/setup.bash
+            cd /root/ros2_ws
+            pytest -q src/ros2_interface/test/test_gru_launch.py -k test_topic_emits_after_imu_input
+          '
+
+      - name: Upload logs (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: colcon-logs
+          path: ros2_ws/log

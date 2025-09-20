@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --no-cache-dir numpy scipy pandas pyyaml
+RUN pip3 install --no-cache-dir numpy onnx onnxruntime
 RUN mkdir -p /root/ros2_ws/src
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 CMD ["/bin/bash"]

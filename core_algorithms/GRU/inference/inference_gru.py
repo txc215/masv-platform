@@ -15,7 +15,7 @@ X_test = np.load(os.path.join(DATA_PATH, "X_train.npy"))  # shape: (N, T, 6)
 X_tensor = torch.tensor(X_test, dtype=torch.float32).to(DEVICE)
 
 # ======== init GRU model & input weight ========
-model = GRUNet(input_size=6, hidden_size=HIDDEN_SIZE, output_size=3)  # output_size is heading + vx + vy
+model = GRUNet(input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, output_size=3)  # output_size is heading + vx + vy
 model.load_state_dict(torch.load(os.path.join(MODEL_PATH, FILE_NAME), weights_only=True))
 model.to(DEVICE)
 model.eval()
