@@ -11,14 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
  && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir \
-    numpy scipy pandas pyyaml \
-    onnx onnxruntime
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
       python3-pytest \
       ros-humble-launch-testing \
  && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir \
+    numpy scipy pandas pyyaml \
+    onnx onnxruntime
 
 
 RUN mkdir -p /root/ros2_ws/src
