@@ -51,14 +51,14 @@ jobs:
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
 
-      # - name: Build masv-dev image (amd64, load locally)
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     context: .
-      #     file: docker/Dockerfile.dev
-      #     platforms: linux/amd64
-      #     load: true
-      #     tags: masv-dev-local:latest
+      - name: Build masv-dev image (amd64, load locally)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: masv-dev-local:latest
 
       - name: Start ros2-dev
         working-directory: docker

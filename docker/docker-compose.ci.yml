@@ -7,7 +7,6 @@ services:
     platform: ""   # new setting for platform
   masv-dev:
     build: ""
-    # image: masv-dev-local:latest
-    # pull_policy: never
-    pull_policy: "skip-in-ci"
+    image: masv-dev-local:latest
+    pull_policy: never
     platform: ""
