@@ -7,7 +7,7 @@ from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import Imu
 from launch import LaunchDescription
 from launch_ros.actions import Node as RosNode
-import launch_testing
+from launch_testing.markers import keep_alive
 import time
 
 MODEL = os.environ.get("GRU_MODEL", "/root/ai_models/gru_model_091025.onnx")
@@ -29,7 +29,7 @@ def generate_test_description():
     )
     return LaunchDescription([gru]), {"params": params}
 
-@launch_testing.markers.keep_alive
+@keep_alive
 def test_topic_emits_after_imu_input(params):
     rclpy.init()
     node = rclpy.create_node("tester")
