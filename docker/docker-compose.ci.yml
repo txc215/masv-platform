@@ -7,6 +7,7 @@ services:
     platform: ""   # new setting for platform
   masv-dev:
     build: ""
-    image: ros2-dev-local:humble
-    pull_policy: never
+    # image: masv-dev-local:latest
+    # pull_policy: never
+    pull_policy: ["skip-in-ci"]
     platform: ""
