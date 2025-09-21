@@ -1,9 +1,9 @@
 services:
   ros2-dev:
     image: local/ros2-dev:humble
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile
     container_name: ros2-dev-container
     volumes:
       - ../ros2_ws:/root/ros2_ws

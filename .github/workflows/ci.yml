@@ -1,8 +1,8 @@
 name: CI
 
-# on:
-#   push:
-#   pull_request:
+on:
+  push:
+  pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -54,8 +54,8 @@ jobs:
       - name: Start ros2-dev
         working-directory: docker
         run: |
-          docker compose up -d --no-build    # no build; cuz already load
-          # docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d ros2-dev
+          # docker compose up -d --no-build    # no build; cuz already load
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --no-build
           # docker compose up -d ros2-dev
           # # wait for passing healthcheck
           # for i in $(seq 1 10); dost
