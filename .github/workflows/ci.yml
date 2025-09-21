@@ -45,7 +45,7 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
-          push: true
+          load: true
           tags: ros2-dev-local:humble
           platforms: linux/amd64
           # cache-from: type=gha
@@ -106,9 +106,9 @@ jobs:
         run: |
           docker compose exec -T ros2-dev bash -lc 'ls -R /root/ros2_ws/log || true'
 
-      - name: Verify image arch
+      - name: Verify local image & arch
         run: |
-          docker image inspect local/ros2-dev:humble --format '{{.Architecture}}/{{.Os}}'
-          docker run --rm local/ros2-dev:humble bash -lc 'uname -m && ros2 --version'
+          docker image inspect ros2-dev-local:humble --format '{{.Architecture}}/{{.Os}}'
+          docker run --rm ros2-dev-local:humble bash -lc 'uname -m && ros2 --version'
 
       # should be amd64/linux
