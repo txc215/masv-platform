@@ -6,4 +6,7 @@ services:
     pull_policy: never
     platform: ""   # new setting for platform
   masv-dev:
+    build: ""
+    image: ros2-dev-local:humble
+    pull_policy: never
     platform: ""
