@@ -54,15 +54,16 @@ jobs:
       - name: Start ros2-dev
         working-directory: docker
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d ros2-dev
-          docker compose up -d ros2-dev
-          # wait for passing healthcheck
-          for i in $(seq 1 10); do
-            state=$(docker inspect --format='{{.State.Health.Status}}' ros2-dev-container 2>/dev/null || echo starting)
-            echo "ros2-dev health: $state"
-            [ "$state" = "healthy" ] && break
-            sleep 3
-          done
+          docker compose up -d --no-build    # no build; cuz already load
+          # docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d ros2-dev
+          # docker compose up -d ros2-dev
+          # # wait for passing healthcheck
+          # for i in $(seq 1 10); dost
+          #   state=$(docker inspect --format='{{.State.Health.Status}}' ros2-dev-container 2>/dev/null || echo starting)
+          #   echo "ros2-dev health: $state"
+          #   [ "$state" = "healthy" ] && break
+          #   sleep 3
+          # done
 
       - name: Colcon build
         working-directory: docker
@@ -106,5 +107,8 @@ jobs:
           docker compose exec -T ros2-dev bash -lc 'ls -R /root/ros2_ws/log || true'
 
       - name: Verify image arch
-        run: docker image inspect local/ros2-dev:humble --format '{{.Architecture}}/{{.Os}}'
+        run: |
+          docker image inspect local/ros2-dev:humble --format '{{.Architecture}}/{{.Os}}'
+          docker run --rm local/ros2-dev:humble bash -lc 'uname -m && ros2 --version'
+
       # should be amd64/linux
