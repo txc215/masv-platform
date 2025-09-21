@@ -93,7 +93,7 @@ jobs:
             source /opt/ros/humble/setup.bash
             source /root/ros2_ws/install/setup.bash
             cd /root/ros2_ws
-            pytest -q src/ros2_interface/test/test_gru_launch.py -k test_topic_emits_after_imu_input
+            python3 -m pytest -q src/ros2_interface/test/test_gru_launch.py -k test_topic_emits_after_imu_input
           '
 
       - name: Upload logs (always)
