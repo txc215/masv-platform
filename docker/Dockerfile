@@ -1,22 +1,22 @@
-# Dockerfile
-FROM ros:humble
-WORKDIR /root
-RUN apt-get update && apt-get install -y \
-    python3-pip \
-    python3-dev \
-    python3-colcon-common-extensions \
-    python3-yaml \
-    python3-setuptools \
-    python3-pyproj \
-    python3-empy \
-    ros-humble-rclpy \
-    ros-humble-sensor-msgs \
-    ros-humble-geometry-msgs \
-    ros-humble-std-msgs \
-    && rm -rf /var/lib/apt/lists/*
+FROM ros:humble-ros-base
 
-RUN pip3 install --no-cache-dir numpy scipy pandas pyyaml
-RUN pip3 install --no-cache-dir numpy onnx onnxruntime
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /root
+
+RUN echo 'Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-colcon-common-extensions \
+    build-essential \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir \
+    numpy scipy pandas pyyaml \
+    onnx onnxruntime
+
 RUN mkdir -p /root/ros2_ws/src
+
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
 CMD ["/bin/bash"]

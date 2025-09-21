@@ -32,8 +32,8 @@ jobs:
       - name: Start ros2-dev
         working-directory: docker
         run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d ros2-dev
           docker compose up -d ros2-dev
-          docker compose -f docker-compose.ci.yml up -d ros2-dev
           # wait for passing healthcheck
           for i in $(seq 1 10); do
             state=$(docker inspect --format='{{.State.Health.Status}}' ros2-dev-container 2>/dev/null || echo starting)
