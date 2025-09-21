@@ -46,7 +46,7 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
-          tags: local/ros2-dev:humble
+          tags: ros2-dev-local:humble
           platforms: linux/amd64
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
