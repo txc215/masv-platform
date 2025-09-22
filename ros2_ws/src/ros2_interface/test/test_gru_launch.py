@@ -13,7 +13,7 @@ from launch_ros.actions import Node as RosNode
 import launch_testing
 from launch_testing.markers import keep_alive
 
-
+@pytest.mark.launch_test # init launch_testing => contest into fixtures
 def generate_test_description():
     # seq_len = 5 for ci faster: topic/model path can replaced by env para
     sub_topic = os.getenv("SUB_TOPIC", "/imu/data")
