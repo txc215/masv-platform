@@ -1,47 +1,58 @@
-# ros2_interface/test/test_gru_launch.py
+# src/ros2_interface/test/test_gru_launch.py
 import os
-import pytest
+import time
 import rclpy
 from rclpy.node import Node
+import pytest
+
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import Imu
+
 from launch import LaunchDescription
 from launch_ros.actions import Node as RosNode
+import launch_testing
 from launch_testing.markers import keep_alive
-import time
 
-MODEL = os.environ.get("GRU_MODEL", "/root/ai_models/gru_model_091025.onnx")
 
 def generate_test_description():
-    params = {
-        "model_path": MODEL,
-        "seq_len": 5,          # reduce waiting time
-        "input_size": 6,
-        "sub_topic": "/imu/data",
-        "pub_topic": "/gru/pred",
-    }
+    # seq_len = 5 for ci faster: topic/model path can replaced by env para
+    sub_topic = os.getenv("SUB_TOPIC", "/imu/data")
+    pub_topic = os.getenv("PUB_TOPIC", "/gru/pred")
+    model_path = os.getenv("GRU_MODEL", "/root/ai_models/gru_model_091025.onnx")
+
     gru = RosNode(
         package="ros2_interface",
         executable="gru_infer_node",
         name="gru_infer_node",
         output="screen",
-        parameters=[params],
+        parameters=[{
+            "model_path": model_path,
+            "input_size": 6,
+            "seq_len": 5,
+            "sub_topic": sub_topic,
+            "pub_topic": pub_topic,
+        }],
     )
-    return LaunchDescription([gru]), {"params": params}
+
+    return LaunchDescription([gru]), {"topics": {"sub": sub_topic, "pub": pub_topic}}
+
 
 @keep_alive
-def test_topic_emits_after_imu_input(params):
+def test_topic_emits_after_imu_input(topics): 
     rclpy.init()
-    node = rclpy.create_node("tester")
+    node = Node("tester")
+
     pred_msgs = []
 
     def on_pred(msg):
         pred_msgs.append(msg)
 
-    sub = node.create_subscription(Float32MultiArray, params["pub_topic"], on_pred, 10)
-    pub = node.create_publisher(Imu, params["sub_topic"], 10)
+    pub_topic = topics["sub"]
+    sub_topic = topics["pub"]
 
-    # 發 50 筆 IMU（seq_len=5 所以很快會出結果）
+    sub = node.create_subscription(Float32MultiArray, sub_topic, on_pred, 10)
+    pub = node.create_publisher(Imu, pub_topic, 10)
+
     imu = Imu()
     imu.linear_acceleration.x = 0.1
     imu.linear_acceleration.y = 0.2
@@ -50,13 +61,12 @@ def test_topic_emits_after_imu_input(params):
     imu.angular_velocity.y = 0.02
     imu.angular_velocity.z = 0.03
 
-    start = time.time()
-    while time.time() - start < 5.0:  # 最多等 5 秒
+    deadline = time.time() + 5.0
+    while time.time() < deadline and not pred_msgs:
         pub.publish(imu)
         rclpy.spin_once(node, timeout_sec=0.05)
-        if pred_msgs:
-            break
 
     node.destroy_node()
     rclpy.shutdown()
+
     assert pred_msgs, "GRU node did not publish /gru/pred within timeout"
