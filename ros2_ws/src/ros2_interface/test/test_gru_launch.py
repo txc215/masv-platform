@@ -3,23 +3,27 @@ import os
 import time
 import rclpy
 from rclpy.node import Node
-import pytest
 
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import Imu
 
 from launch import LaunchDescription
 from launch_ros.actions import Node as RosNode
+
+import pytest
 import launch_testing
 from launch_testing.markers import keep_alive
 
-@pytest.mark.launch_test # init launch_testing => contest into fixtures
+
+@pytest.mark.launch_test
 def generate_test_description():
-    # seq_len = 5 for ci faster: topic/model path can replaced by env para
+
     sub_topic = os.getenv("SUB_TOPIC", "/imu/data")
     pub_topic = os.getenv("PUB_TOPIC", "/gru/pred")
-    model_path = os.getenv("GRU_MODEL", "/root/ai_models/gru_model_091025.onnx")
+    model_path = os.getenv("GRU_MODEL", "/root/ai_models/gru_model.onnx")
+    seq_len = int(os.getenv("SEQ_LEN", "5"))  # CI 測試用短序列
 
+    # ROS2 node
     gru = RosNode(
         package="ros2_interface",
         executable="gru_infer_node",
@@ -28,29 +32,31 @@ def generate_test_description():
         parameters=[{
             "model_path": model_path,
             "input_size": 6,
-            "seq_len": 5,
+            "seq_len": seq_len,
             "sub_topic": sub_topic,
             "pub_topic": pub_topic,
         }],
     )
 
+
     return LaunchDescription([gru]), {"topics": {"sub": sub_topic, "pub": pub_topic}}
 
 
 @keep_alive
-def test_topic_emits_after_imu_input(topics): 
+def test_topic_emits_after_imu_input(topics):
+    
     rclpy.init()
     node = Node("tester")
 
-    pred_msgs = []
+    received = []
 
     def on_pred(msg):
-        pred_msgs.append(msg)
+        received.append(msg)
 
     pub_topic = topics["sub"]
     sub_topic = topics["pub"]
 
-    sub = node.create_subscription(Float32MultiArray, sub_topic, on_pred, 10)
+    node.create_subscription(Float32MultiArray, sub_topic, on_pred, 10)
     pub = node.create_publisher(Imu, pub_topic, 10)
 
     imu = Imu()
@@ -62,11 +68,11 @@ def test_topic_emits_after_imu_input(topics):
     imu.angular_velocity.z = 0.03
 
     deadline = time.time() + 5.0
-    while time.time() < deadline and not pred_msgs:
+    while time.time() < deadline and not received:
         pub.publish(imu)
         rclpy.spin_once(node, timeout_sec=0.05)
 
     node.destroy_node()
     rclpy.shutdown()
 
-    assert pred_msgs, "GRU node did not publish /gru/pred within timeout"
+    assert received, "GRU node did not publish to pub_topic within 5s"

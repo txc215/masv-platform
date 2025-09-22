@@ -85,6 +85,28 @@ jobs:
             colcon build --symlink-install --event-handlers console_direct+
           '
 
+      - name: Check launch_testing import & version
+        working-directory: docker
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
+            python3 - <<PY
+          import launch_testing, importlib, pkgutil
+          print("launch_testing module:", launch_testing.__file__)
+          print("has markers.keep_alive:",
+                pkgutil.find_loader("launch_testing.markers") is not None)
+          from launch_testing.markers import keep_alive
+          print("keep_alive OK")
+          PY'
+
+      - name: Dry-run collect
+        working-directory: docker
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
+            source /opt/ros/humble/setup.bash
+            python3 -m pytest -vv src/ros2_interface/test/test_gru_launch.py --collect-only
+          '
+
+
       - name: Run GRU launch test
         working-directory: docker
         run: |
@@ -93,10 +115,9 @@ jobs:
             source /opt/ros/humble/setup.bash
             source /root/ros2_ws/install/setup.bash
             cd /root/ros2_ws
-            python3 -m pytest -q src/ros2_interface/test/test_gru_launch.py
+            python3 -m pytest -vv src/ros2_interface/test/test_gru_launch.py
           '
 
-          '
 
       - name: Upload logs (always)
         if: always()
