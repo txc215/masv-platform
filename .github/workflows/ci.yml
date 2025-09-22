@@ -88,12 +88,14 @@ jobs:
       - name: Run GRU launch test
         working-directory: docker
         run: |
-          docker compose exec -T ros2-dev bash -lc '
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
             set -e
             source /opt/ros/humble/setup.bash
             source /root/ros2_ws/install/setup.bash
             cd /root/ros2_ws
-            python3 -m pytest -q src/ros2_interface/test/test_gru_launch.py -k test_topic_emits_after_imu_input
+            python3 -m pytest -q src/ros2_interface/test/test_gru_launch.py
+          '
+
           '
 
       - name: Upload logs (always)
