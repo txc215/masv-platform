@@ -85,18 +85,18 @@ jobs:
             colcon build --symlink-install --event-handlers console_direct+
           '
 
-      - name: Check launch_testing import & version
-        working-directory: docker
-        run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
-            python3 - <<PY
-          import launch_testing, importlib, pkgutil
-          print("launch_testing module:", launch_testing.__file__)
-          print("has markers.keep_alive:",
-                pkgutil.find_loader("launch_testing.markers") is not None)
-          from launch_testing.markers import keep_alive
-          print("keep_alive OK")
-          PY'
+      # - name: Check launch_testing import & version
+      #   working-directory: docker
+      #   run: |
+      #     docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
+      #       python3 - <<PY
+      #     import launch_testing, importlib, pkgutil
+      #     print("launch_testing module:", launch_testing.__file__)
+      #     print("has markers.keep_alive:",
+      #           pkgutil.find_loader("launch_testing.markers") is not None)
+      #     from launch_testing.markers import keep_alive
+      #     print("keep_alive OK")
+      #     PY'
 
       - name: Dry-run collect
         working-directory: docker

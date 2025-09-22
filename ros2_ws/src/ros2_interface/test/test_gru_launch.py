@@ -21,7 +21,7 @@ def generate_test_description():
     sub_topic = os.getenv("SUB_TOPIC", "/imu/data")
     pub_topic = os.getenv("PUB_TOPIC", "/gru/pred")
     model_path = os.getenv("GRU_MODEL", "/root/ai_models/gru_model.onnx")
-    seq_len = int(os.getenv("SEQ_LEN", "5"))  # CI 測試用短序列
+    seq_len = int(os.getenv("SEQ_LEN", "5"))  # CI seq length
 
     # ROS2 node
     gru = RosNode(
