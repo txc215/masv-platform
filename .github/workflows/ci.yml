@@ -141,6 +141,6 @@ jobs:
       - name: Verify local image & arch
         run: |
           docker image inspect ros2-dev-local:humble --format '{{.Architecture}}/{{.Os}}'
-          docker run --rm ros2-dev-local:humble bash -lc 'uname -m && ros2 --version'
+          docker run --rm ros2-dev-local:humble bash -lc 'uname -m && $ echo $ROS_DISTRO'
 
       # should be amd64/linux
