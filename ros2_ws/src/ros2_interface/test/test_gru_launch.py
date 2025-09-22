@@ -1,5 +1,6 @@
 # src/ros2_interface/test/test_gru_launch.py
 import os
+import sys
 import time
 import rclpy
 from rclpy.node import Node
@@ -17,41 +18,55 @@ from launch_testing.markers import keep_alive
 
 @pytest.mark.launch_test
 def generate_test_description():
+    """
+    標準 launch_testing 入口：
+    - 回傳 (LaunchDescription([... , ReadyToTest()]), context_dict)
+    - 任何例外都直接 print 出來，避免 loader.py 吞掉 traceback。
+    """
+    try:
+        sub_topic = os.getenv("SUB_TOPIC", "/imu/data")
+        pub_topic = os.getenv("PUB_TOPIC", "/gru/pred")
+        model_path = os.getenv("GRU_MODEL", "/root/ai_models/gru_model_091025.onnx")
+        seq_len = int(os.getenv("SEQ_LEN", "5"))
 
-    sub_topic = os.getenv("SUB_TOPIC", "/imu/data")
-    pub_topic = os.getenv("PUB_TOPIC", "/gru/pred")
-    model_path = os.getenv("GRU_MODEL", "/root/ai_models/gru_model.onnx")
-    seq_len = int(os.getenv("SEQ_LEN", "5"))  # CI seq length
+        gru = RosNode(
+            package="ros2_interface",
+            executable="gru_infer_node",
+            name="gru_infer_node",
+            output="screen",
+            parameters=[{
+                "model_path": model_path,
+                "input_size": 6,
+                "seq_len": seq_len,
+                "sub_topic": sub_topic,
+                "pub_topic": pub_topic,
+            }],
+        )
 
-    # ROS2 node
-    gru = RosNode(
-        package="ros2_interface",
-        executable="gru_infer_node",
-        name="gru_infer_node",
-        output="screen",
-        parameters=[{
-            "model_path": model_path,
-            "input_size": 6,
-            "seq_len": seq_len,
-            "sub_topic": sub_topic,
-            "pub_topic": pub_topic,
-        }],
-    )
+        ld = LaunchDescription([
+            gru,
+            launch_testing.actions.ReadyToTest(),   # ★ 必加：告訴測試框架可開始執行測試
+        ])
 
+        context = {"topics": {"sub": sub_topic, "pub": pub_topic}}
+        return ld, context
 
-    return LaunchDescription([gru]), {"topics": {"sub": sub_topic, "pub": pub_topic}}
+    except Exception as e:
+        print("EXCEPTION in generate_test_description():", file=sys.stderr)
+        import traceback; traceback.print_exc()
+        raise
 
 
 @keep_alive
-def test_topic_emits_after_imu_input(topics):
-    
+def test_gru_launch(topics):
+    """發 IMU 訊息，驗證 GRU node 會在 pub_topic 上輸出。"""
     rclpy.init()
     node = Node("tester")
 
-    received = []
+    got = []
 
     def on_pred(msg):
-        received.append(msg)
+        got.append(msg)
 
     pub_topic = topics["sub"]
     sub_topic = topics["pub"]
@@ -68,11 +83,11 @@ def test_topic_emits_after_imu_input(topics):
     imu.angular_velocity.z = 0.03
 
     deadline = time.time() + 5.0
-    while time.time() < deadline and not received:
+    while time.time() < deadline and not got:
         pub.publish(imu)
         rclpy.spin_once(node, timeout_sec=0.05)
 
     node.destroy_node()
     rclpy.shutdown()
 
-    assert received, "GRU node did not publish to pub_topic within 5s"
+    assert got, "GRU node did not publish to pub_topic within 5s"
