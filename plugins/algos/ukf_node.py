@@ -96,7 +96,10 @@ class UKFNode(BaseNode):
         return x, y
 
     def _yaw_from_mag(self, mx: float, my: float) -> float:
-        """簡化磁方位（未含硬/軟鐵校正）：atan2(-my, mx) + declination"""
+        """
+        Find heading from magnetometer mx, my. No hard-iron and soft-iron adjustment
+        atan2(-my, mx) + declination
+        """
         return _wrap(math.atan2(-float(my), float(mx)) + self.decl)
 
     def _maybe_predict_to(self, t_now: float) -> None:
@@ -118,10 +121,6 @@ class UKFNode(BaseNode):
         """
         t = float(ev["timestamp"])
         topic = ev["_topic"]
-
-        # dt check (node check if same timestamp. UKFAlgorithm use timestamp for dt）
-        raw = 0.0 if self.last_t is None else (t - self.last_t)
-        dt_node = 0.0 if raw <= 0.0 else min(self.dt_max, max(self.dt_min, raw))
 
         # ---------- predict ----------
         if topic == "imu":

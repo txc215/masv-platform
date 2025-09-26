@@ -25,7 +25,8 @@ class GRUNode(BaseNode):
         self.mean = np.array(norm_mean, dtype=np.float32) if norm_mean else None
         self.std  = np.array(norm_std,  dtype=np.float32) if norm_std  else None
 
-    def reset(self): self.buf.clear()
+    def reset(self): 
+        self.buf.clear()
 
     def on_event(self, ev: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         if ev["_topic"] != "imu":

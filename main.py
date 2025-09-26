@@ -69,8 +69,8 @@ def main():
         # base on BATCH_ORDER to deal with all same timestamp events
         for pkt in sorted(batch, key=lambda p: BATCH_ORDER.get(p["_topic"], 99)):
             out = node.on_event({"_ts": tstamp, **pkt})
-            if out is not None:
-                sink.write(out)
+        if out is not None:
+            sink.write(out)
 
     for t, packet in merge_streams(streams):
         if current_t is None:

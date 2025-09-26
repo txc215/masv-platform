@@ -36,7 +36,7 @@ class EKFNode(BaseNode):
         self.ekf.set_observation_noise("gnss", np.diag(R_gnss))
         self.ekf.set_observation_noise("magnetometer", np.array([[R_mag if isinstance(R_mag,(int,float)) else R_mag[0]]],float))
 
-        # 時間與原點
+        # time and init position
         self.last_t: Optional[float] = None
         self.lat0 = self.lon0 = None
         self.cos_lat0 = None
@@ -68,15 +68,14 @@ class EKFNode(BaseNode):
         topic = ev["_topic"]
 
         if self.last_t is None:
-        	raw = 0.0
+        	dt = 0
         else:
-            raw =  (t - self.last_t)
+            dt =  (t - self.last_t)
+            if dt <= 0:
+                dt = 0
+            else:
+                dt = min(self.dt_max, max(self.dt_min, dt))
             
-        if raw <= 0.0:
-        	dt = 0.0
-        else:
-            dt = min(self.dt_max, max(self.dt_min, raw))
-
         if topic == "imu":
             # 1. User external velocity 
             # 2. GNSS position difference to get velocity 

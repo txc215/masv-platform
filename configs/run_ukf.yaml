@@ -2,14 +2,14 @@
 sources:
   - type: csv
     params:
-      path: ../data/sample_inputs/dummy_gnss_imu.csv
+      path: ../data/sample_inputs/dummy_imu.csv
       ts_col: timestamp_sec
       topic: imu
       rename:
         gyro_z_radps: wz
   - type: csv
     params:
-      path: ../data/sample_inputs/dummy_gnss_imu.csv
+      path: ../data/sample_inputs/dummy_gnss.csv
       ts_col: timestamp_sec
       topic: gnss
       rename:
@@ -17,7 +17,7 @@ sources:
         gnss_lon_deg: lon
   - type: csv
     params:
-      path: ../data/sample_inputs/dummy_gnss_imu.csv
+      path: ../data/sample_inputs/dummy_mag.csv
       ts_col: timestamp_sec
       topic: mag
       rename:
