@@ -1,0 +1,45 @@
+# configs/run_ukf.yaml
+sources:
+  - type: csv
+    params:
+      path: ../data/sample_inputs/dummy_gnss_imu.csv
+      ts_col: timestamp_sec
+      topic: imu
+      rename:
+        gyro_z_radps: wz
+  - type: csv
+    params:
+      path: ../data/sample_inputs/dummy_gnss_imu.csv
+      ts_col: timestamp_sec
+      topic: gnss
+      rename:
+        gnss_lat_deg: lat
+        gnss_lon_deg: lon
+  - type: csv
+    params:
+      path: ../data/sample_inputs/dummy_gnss_imu.csv
+      ts_col: timestamp_sec
+      topic: mag
+      rename:
+        mag_x_uT: mx
+        mag_y_uT: my
+
+node:
+  type: plugins.algos.ukf_node.UKFNode
+  params:
+    Q:  [[0.01,0,0],[0,0.01,0],[0,0,0.001]]
+    R_gnss: [[1,0],[0,1]]
+    R_mag:  [[0.05]]
+    alpha: 0.001
+    beta:  2.0
+    kappa: 0
+    dt_min: 0.001
+    dt_max: 0.2
+    use_mag: true
+    declination_deg: 0.0
+
+sink:
+  type: plugins.csv_sink.CsvSink
+  params: { path: ../data/sample_outputs/state_ukf.csv }
+
+options: { realtime: false }

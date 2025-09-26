@@ -19,9 +19,9 @@ from launch_testing.markers import keep_alive
 @pytest.mark.launch_test
 def generate_test_description():
     """
-    標準 launch_testing 入口：
-    - 回傳 (LaunchDescription([... , ReadyToTest()]), context_dict)
-    - 任何例外都直接 print 出來，避免 loader.py 吞掉 traceback。
+    Standard launch_testing input:
+    - response (LaunchDescription([... , ReadyToTest()]), context_dict)
+    - print all exception, aovid loader.py hide traceback。
     """
     try:
         sub_topic = os.getenv("SUB_TOPIC", "/imu/data")
@@ -45,7 +45,7 @@ def generate_test_description():
 
         ld = LaunchDescription([
             gru,
-            launch_testing.actions.ReadyToTest(),   # ★ 必加：告訴測試框架可開始執行測試
+            launch_testing.actions.ReadyToTest(),   # for test framework to process test
         ])
 
         context = {"topics": {"sub": sub_topic, "pub": pub_topic}}
@@ -59,7 +59,7 @@ def generate_test_description():
 
 @keep_alive
 def test_gru_launch(topics):
-    """發 IMU 訊息，驗證 GRU node 會在 pub_topic 上輸出。"""
+    """publish IMU msg. validate GRU node output on pub_topic。"""
     rclpy.init()
     node = Node("tester")
 

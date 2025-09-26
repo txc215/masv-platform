@@ -1,0 +1,38 @@
+# configs/run_gru.yaml
+sources:
+  - type: csv
+    params:
+      path: ../data/sample_inputs/dummy_imu.csv
+      ts_col: timestamp_sec
+      topic: imu
+      rename:
+        accel_x_mps2: ax
+        accel_y_mps2: ay
+        accel_z_mps2: az
+        gyro_x_radps: gx
+        gyro_y_radps: gy
+        gyro_z_radps: gz
+
+  - type: csv
+    params:
+      path: ../data/sample_inputs/dummy_gnss.csv
+      ts_col: timestamp_sec
+      topic: gnss
+      rename:
+        gnss_lat_deg: lat
+        gnss_lon_deg: lon
+node:
+  type: plugins.algos.gru_node.GRUNode
+  params:
+    onnx_path: ai_models/gru_model_091025.onnx
+    seq_len: 20
+    input_size: 6
+    # If training with normalized data, please input（ax,ay,az,gx,gy,gz）
+    # norm_mean: ex: [0,0,9.81,0,0,0]
+    # norm_std:  ex: [..6 value..]
+
+sink:
+  type: plugins.csv_sink.CsvSink
+  params: { path: ../data/sample_outputs/state_gru.csv }
+
+options: { realtime: false }

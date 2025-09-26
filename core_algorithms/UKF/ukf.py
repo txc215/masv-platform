@@ -1,8 +1,15 @@
 import numpy as np
 import sys
 
-sys.path.insert(0, '../')
-from base_algorithm import BaseAlgorithm, mag_to_heading
+import socket
+
+hostname = socket.gethostname()
+
+if 'Mac' in hostname or 'Windows' in hostname:
+    sys.path.insert(0, '../../')
+    from core_algorithms.base_algorithm import BaseAlgorithm, mag_to_heading
+else:
+    from base_algorithm import BaseAlgorithm, mag_to_heading
 
 class UKFAlgorithm(BaseAlgorithm):
     def __init__(self, f, h_dict, Q, R_dict, alpha=1e-3, beta=2.0, kappa=0):
