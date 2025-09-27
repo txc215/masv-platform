@@ -137,7 +137,7 @@ flowchart TD
   B --> C[Init Sources .csv file]
   C --> D[Init Node <br/>EKF / UKF / GRU]
   D --> E[Merge by timestamp]
-  E --> F{Same-timestamp batch}
+  E --> F[Put all same-timestamp data into same batch]
   F --> G[Process batch events by topic order]
   G --> H[Keep last state of this timestamp]
   H --> I[Write once to CSV]
