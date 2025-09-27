@@ -1,4 +1,4 @@
-# Modular AI Simulation and Validation (MASV) — Sensor Fusion & ML (ROS2 + Local Runner)
+# masv-platform - Modular Autonomy Simulation & Validation Platform — Sensor Fusion & ML (ROS2 + Local Runner)
 
 **MASV** is a modular toolkit for testing and comparing sensor-fusion and ML algorithms with **ROS2** or a **lightweight local runner** (no ROS2).
 Use ROS2 for live systems and integration; use the local runner for quick offline experiments on CSV logs. Switch between them without changing algorithms.
