@@ -1,0 +1,25 @@
+# config/simple_run.yaml
+
+#（baseline/ekf/ukf/gru）
+core: baseline
+
+inputs:
+  - sensor: imu
+    path: ../data/simple_inputs/dummy_gnss_imu.csv
+    ts_col: timestamp
+
+output:
+  path: ./data/simple_outputs/state.csv
+  fields: [timestamp, x, y, yaw, vx, vy, omega]
+
+options:
+  realtime: false              # true = base data time_t to manage data stream
+
+core_config:
+  x0: 0.0
+  y0: 0.0
+  yaw0: 0.0
+  vx0: 0.0
+  vy0: 0.0
+  ax_bias: 0.0
+  ay_bias: 0.0

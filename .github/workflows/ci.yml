@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      GRU_MODEL: /root/ai_models/gru_model_091025.onnx
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Print platform env (debug)
+        run: |
+          echo "DOCKER_DEFAULT_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-<unset>}"
+          docker buildx ls || true
+      # for docker-contianer for builder and support GHA cache/switch platform change
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          driver: docker-container
+          # if has cache backend problem use this line to upgrade buildkit：
+          # driver-opts: image=moby/buildkit:latest
+
+      - name: Debug buildx
+        run: |
+          echo "DOCKER_DEFAULT_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-<unset>}"
+          docker buildx ls
+
+      - name: Build ros2-dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          load: true
+          tags: ros2-dev-local:humble
+          platforms: linux/amd64
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
+
+      - name: Build masv-dev image (amd64, load locally)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: masv-dev-local:latest
+
+      - name: Start ros2-dev
+        working-directory: docker
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --no-build
+
+
+      - name: Colcon build
+        working-directory: docker
+        run: |
+          docker compose exec -T ros2-dev bash -lc '
+            set -e
+            source /opt/ros/humble/setup.bash
+            cd /root/ros2_ws
+            rm -rf build install log
+            colcon build --symlink-install --event-handlers console_direct+
+          '
+
+      # - name: Check launch_testing import & version
+      #   working-directory: docker
+      #   run: |
+      #     docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
+      #       python3 - <<PY
+      #     import launch_testing, importlib, pkgutil
+      #     print("launch_testing module:", launch_testing.__file__)
+      #     print("has markers.keep_alive:",
+      #           pkgutil.find_loader("launch_testing.markers") is not None)
+      #     from launch_testing.markers import keep_alive
+      #     print("keep_alive OK")
+      #     PY'
+
+      - name: Dry-run collect
+        working-directory: docker
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
+            source /opt/ros/humble/setup.bash
+            python3 -m pytest -vv src/ros2_interface/test/test_gru_launch.py --collect-only
+          '
+
+
+      - name: Run GRU launch test
+        working-directory: docker
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T ros2-dev bash -lc '
+            set -e
+            source /opt/ros/humble/setup.bash
+            source /root/ros2_ws/install/setup.bash
+            cd /root/ros2_ws
+            python3 -m pytest -vv src/ros2_interface/test/test_gru_launch.py
+          '
+
+
+      - name: Upload logs (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: colcon-logs
+          path: ros2_ws/log
+
+      - name: Debug log path
+        run: |
+          echo "Repo root contents:"
+          ls -R .
+          echo "ros2_ws/log contents:"
+          ls -R ros2_ws/log || true
+
+      - name: Debug container log path
+        working-directory: docker
+        run: |
+          docker compose exec -T ros2-dev bash -lc 'ls -R /root/ros2_ws/log || true'
+
+      - name: Verify local image & arch
+        run: |
+          docker image inspect ros2-dev-local:humble --format '{{.Architecture}}/{{.Os}}'
+          docker run --rm ros2-dev-local:humble bash -lc 'uname -m && echo $ROS_DISTRO'
+
+      # should be amd64/linux

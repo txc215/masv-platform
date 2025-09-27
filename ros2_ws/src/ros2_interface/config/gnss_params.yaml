@@ -1,0 +1,6 @@
+gnss_node:
+  ros__parameters:
+    gnss_topic: "/gnss/fix"
+    gnss_rate: 5.0         # GNSS update rate: 5Hz
+    frame_id: "gnss_link"
+    use_sim_time: true     # for rosbag

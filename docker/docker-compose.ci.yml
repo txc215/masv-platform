@@ -1,0 +1,12 @@
+# docker/docker-compose.ci.yml
+services:
+  ros2-dev:
+    build: ""
+    image: ros2-dev-local:humble
+    pull_policy: never
+    platform: ""   # new setting for platform
+  masv-dev:
+    build: ""
+    image: masv-dev-local:latest
+    pull_policy: never
+    platform: ""

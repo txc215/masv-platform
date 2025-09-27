@@ -1,0 +1,9 @@
+ekf_node:
+  ros__parameters:
+    initial_state: [0.1, 0.11, 0.111]
+    initial_covariance: [1.0, 1.0, 0.1]
+    R_gnss: [0.5, 0.5]
+    R_mag: [0.1]
+    wheelbase: 2.5
+    log_path: "/root/data/sample_inputs/dummy_gnss_imu.csv"
+

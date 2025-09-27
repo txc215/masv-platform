@@ -1,0 +1,7 @@
+gru_infer_node:
+  ros__parameters:
+    model_path: "/root/ai_models/gru_model_091025.onnx"
+    seq_len: 20
+    input_size: 6
+    sub_topic: "/imu/data"
+    pub_topic: "/gru/pred"
