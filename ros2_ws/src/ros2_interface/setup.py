@@ -16,6 +16,7 @@ setup(
                               'config/gru_params.yaml', 
                               'config/ekf_params.yaml',
                               'config/ukf_params.yaml',
+                              'config/analysis_params.yaml',
                               'config/log_replay_params.yaml'
                              ]),
         ('share/ament_index/resource_index/packages',
@@ -35,6 +36,7 @@ setup(
             'ekf_node = ai_models_nodes.ekf_node:main',
             'ukf_node = ai_models_nodes.ukf_node:main',
             'gru_infer_node = ai_models_nodes.gru_infer_node:main',
+            'analysis_node = interface_nodes.analysis_node:main',
         ],
     },
 )

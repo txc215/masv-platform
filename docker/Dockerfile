@@ -20,6 +20,9 @@ RUN pip3 install --no-cache-dir \
     numpy scipy pandas pyyaml \
     onnx onnxruntime
 
+RUN pip3 install --no-cache-dir matplotlib
+
+RUN pip3 install --no-cache-dir flask 
 
 RUN mkdir -p /root/ros2_ws/src
 
