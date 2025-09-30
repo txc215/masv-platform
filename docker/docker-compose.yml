@@ -1,9 +1,9 @@
 services:
   ros2-dev:
     image: local/ros2-dev:humble
-    # build:
-    #   context: ..
-    #   dockerfile: docker/Dockerfile
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: ros2-dev-container
     volumes:
       - ../ros2_ws:/root/ros2_ws
@@ -12,11 +12,14 @@ services:
       - ../ai_models:/root/ai_models${READONLY}
       - ../data:/root/data
       - ../scripts:/root/scripts
+      - ../result_viewer:/root/result_viewer
     environment:
       - PYTHONPATH=/root/core_algorithms:/root/motion_models:/root/ai_models
       - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
       - GRU_MODEL=${GRU_MODEL:-/root/ai_models/gru_model_091025.onnx}
       - TZ=${TZ}
+      - BAG_DIR=${BAG_DIR}
+      - ANALYSIS_DIR=/root/data/analysis
     working_dir: /root/ros2_ws
     platform: ${PLATFORM:-}
     tty: true
@@ -33,6 +36,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    ports:
+      - "5000:5000"
 
   masv-dev:
     image: local/masv-dev:latest
