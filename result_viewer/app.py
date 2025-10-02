@@ -7,8 +7,8 @@ import pandas as pd
 
 CURR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_ANALYSIS = os.path.normpath(os.path.join(CURR, "..", "data", "analysis"))
-# DATA_DIR = os.environ.get("ANALYSIS_DIR", DEFAULT_ANALYSIS)
-DATA_DIR = "/root/data/sample_outputs/" # show output data
+DATA_DIR = os.environ.get("ANALYSIS_DIR", DEFAULT_ANALYSIS)
+# DATA_DIR = "/root/data/sample_outputs/" # show output data
 
 app = Flask(__name__)
 

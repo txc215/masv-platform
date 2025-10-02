@@ -45,7 +45,7 @@ class GRUInferNode(Node):
         qos = rclpy.qos.QoSProfile(depth=50)
         self.sub = self.create_subscription(Imu, sub_topic, self.on_imu, qos)
         self.pub = self.create_publisher(Float32MultiArray, pub_topic, qos)
-        self.timer = self.create_timer(0.01, self.tick)  # 100Hz 嘗試推論
+        self.timer = self.create_timer(0.01, self.tick)  # 100Hz infer
 
         self.get_logger().info(f"GRU ONNX loaded: {model_path}")
 
