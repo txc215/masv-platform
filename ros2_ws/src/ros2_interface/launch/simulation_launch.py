@@ -33,15 +33,6 @@ def generate_launch_description():
     return LaunchDescription([
         use_log_replay, play_bag, bag, log_dir, use_sim_time, use_analysis,
 
-        Node(
-            package=package_name,
-            executable='analysis_node',
-            name='analysis_node',
-            output='screen',
-            parameters=[os.path.join(cfg_dir, 'analysis_params.yaml')],
-            condition=IfCondition(LaunchConfiguration('use_analysis'))
-        ),
-
         # replay files（only enable when use_log_replay=true ）
         Node(
             package=package_name,
@@ -75,6 +66,26 @@ def generate_launch_description():
                 os.path.join(cfg_dir, 'ukf_params.yaml'),
                 {'use_sim_time': LaunchConfiguration('use_sim_time')}
             ]
+        ),
+
+        Node(
+            package=package_name,
+            executable='gru_infer_node',
+            name='gru_infer_node',
+            output='screen',
+            parameters=[
+                os.path.join(cfg_dir, 'gru_params.yaml'),
+                {'use_sim_time': LaunchConfiguration('use_sim_time')}
+            ]
+        ),
+
+        Node(
+            package=package_name,
+            executable='analysis_node',
+            name='analysis_node',
+            output='screen',
+            parameters=[os.path.join(cfg_dir, 'analysis_params.yaml')],
+            condition=IfCondition(LaunchConfiguration('use_analysis'))
         ),
 
         # rosbag replay（only activate when play_bag=true)
