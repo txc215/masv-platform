@@ -1,0 +1,5 @@
+analysis_node:
+  ros__parameters:
+    out_dir: "/root/data/analysis"
+    sub_topic: "/imu/data"
+    window_sec: 10.0
