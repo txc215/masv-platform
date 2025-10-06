@@ -18,11 +18,11 @@ Use ROS2 for live systems and integration; use the local runner for quick offlin
 
 **What this README covers**
 
-* Running the local simulation pipeline (EKF / UKF / GRU) with YAML + CSV.
+* Running the ROS2 and docker/local simulation pipeline (EKF / UKF / GRU) with YAML + BAG/CSV.
 
 **Looking for something eles?**
 
-- ROS2 (containerized with docker): coming soon
+- ROS2 Detail (containerized with docker): coming soon
 - CI (GitHub Actions): coming soon
 - Model Viewer (wxPython): coming soon
 - Result Viewer: coming soon
@@ -58,8 +58,133 @@ python main.py --config configs/run_gru.yaml
 Outputs go to `data/simple_outputs/state_*.csv` with columns like `timestamp,x,y,yaw,...`.
 
 ---
+## ROS2 + Docker (Quick Start)
 
-## How `main.py` works
+This section is the **quick start** for the Docker path.
+
+--
+
+### Prerequisites
+
+* Docker Desktop (macOS/Windows) or Docker Engine (Linux)
+* Docker Desktop → *Settings → Resources → File Sharing* includes your project path (macOS)
+
+--
+
+### Directory layout (key paths)
+
+```
+project/
+├─ docker/                # Dockerfile, docker-compose.yml, .env
+├─ ros2_ws/               # ROS 2 workspace (src/ros2_interface/…)
+└─ data/
+   ├─ rosbag_logs/        # rosbag2 datasets  (BAG_DIR)
+   └─ analysis/           # analysis outputs (CSV/PNG)
+```
+--
+### Environment (.env and `docker-compose.yml` same folder)
+
+```env
+BAG_DIR=/root/data/rosbag_logs
+ANALYSIS_DIR=/root/data/analysis
+ROS_DOMAIN_ID=0
+RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+TZ=America/New_York
+```
+--
+### Start the container
+
+
+```bash
+cd $path_to_project/docker
+docker compose build
+docker compose up -d
+docker exec -it ros2-dev-container bash
+```
+--
+#### First-time workspace setup (inside the container)
+
+```bash
+# Source ROS and build the workspace once
+source /opt/ros/humble/setup.bash
+cd ~/ros2_ws
+colcon build --symlink-install
+
+# Make the built packages available in this shell
+source install/setup.bash
+```
+Tip: added auto-source
+```bash
+
+source /opt/ros/humble/setup.bash
+[ -f ~/ros2_ws/install/setup.bash ] && source ~/ros2_ws/install/setup.bash
+
+```
+--
+### Play a bag (recommended)
+
+```bash
+# Option A: from launch (if your launch supports bag args)
+ros2 launch ros2_interface simulation_launch.py \
+  use_log_replay:=false play_bag:=true \
+  bag:="$BAG_DIR/<bag_folder>" use_sim_time:=true
+
+# Option B: split terminals
+ros2 launch ros2_interface simulation_launch.py
+# in another terminal:
+ros2 bag play "$BAG_DIR/<bag_folder>" -l --clock
+```
+
+> Point `bag` to the **folder** containing `metadata.yaml` (+ `*.db3`/`*.mcap`).
+--
+### Record a quick bag
+
+```bash
+mkdir -p "$BAG_DIR"
+ros2 bag record /imu/data -o "$BAG_DIR/imu_$(date +%F_%H%M)"
+ros2 bag info "$BAG_DIR"/imu_*
+```
+--
+### Inspect topics
+
+```bash
+ros2 topic list -t
+ros2 topic echo /imu/data
+ros2 topic hz /imu/data
+```
+--
+### QoS gotcha (most common)
+
+If you see:
+
+```
+New publisher discovered ... incompatible QoS (RELIABILITY)
+```
+
+Make subscriber(s) use **sensor QoS** (best-effort, volatile).
+--
+### Optional: basic analysis & Flask
+
+* Write CSV/PNG to `ANALYSIS_DIR` from an analysis node.
+* Serve quick plots inside the same container (port 5000 exposed):
+
+```bash
+export ANALYSIS_DIR=/root/data/analysis
+python3 /root/result_viewer/app.py  # app.run(host="0.0.0.0", port=5000)
+# Open http://localhost:5000 in brewser
+```
+--
+### Troubleshooting (quick)
+
+* **Pull access denied for `local/ros2-dev`** → `docker compose build` first, or remove `image:` and rely on `build:`.
+* **Mounts denied / path not shared** → Add your project path in Docker Desktop File Sharing.
+* **`python: command not found`** → Use `python3`/`pip3` (or install `python-is-python3` in the image).
+* **Bag path points to a `.db3` file** → Pass the **bag folder** (with `metadata.yaml`).
+
+---
+## Local Runner
+
+### How `main.py` works
 
 1. **Sources**: read CSV(s), apply optional `rename`, yield events `{"_topic": "...", "timestamp": t, ...}`.
 2. **Merge**: k-way merge by timestamp across sources.
@@ -78,7 +203,7 @@ Outputs go to `data/simple_outputs/state_*.csv` with columns like `timestamp,x,y
 
 ---
 
-## Data format (for local runner)
+### Data format (for local runner)
 
 * IMU: `timestamp_sec, accel_x_mps2, accel_y_mps2, accel_z_mps2, gyro_x_radps, gyro_y_radps, gyro_z_radps`
 * MAG: `timestamp_sec, mag_x_uT, mag_y_uT, mag_z_uT`
@@ -87,7 +212,7 @@ Outputs go to `data/simple_outputs/state_*.csv` with columns like `timestamp,x,y
 
 ---
 
-## Minimal UKF config (example)
+### Minimal UKF config (example)
 
 
 ```yaml
@@ -129,7 +254,7 @@ options:
 
 ---
 
-## Flowchart
+### Flowchart
 
 ```mermaid
 flowchart TD
@@ -148,14 +273,14 @@ flowchart TD
 ```
 ---
 
-## How things stay consistent
+### How things stay consistent
 
 * The **same EKF/UKF/GRU cores** power both ROS2 nodes and the local runner.
 * Local runner batches same-timestamp events in a fixed order (default **IMU -> GNSS -> MAG**) and **writes once per timestamp**.
 
 ---
 
-## Switching algorithms
+### Switching algorithms
 
 Change the node dotted path in YAML:
 
@@ -167,7 +292,7 @@ No changes to `main.py` required.
 
 ---
 
-## Simulated data (optional)
+### Simulated data (optional)
 
 Use a small script to generate:
 
@@ -176,7 +301,7 @@ Use a small script to generate:
 
 ---
 
-## Extending
+### Extending
 
 * Add a new node in `plugins/algos/new_node.py` implementing `reset` and `on_event`.
 * Point YAML `new_node.type` to `plugins.algos.new_node.NewNode`.
@@ -185,7 +310,7 @@ Use a small script to generate:
 
 ---
 
-## Troubleshooting
+### Troubleshooting
 
 - In progress
 
