@@ -160,9 +160,11 @@ If you see:
 ```
 New publisher discovered ... incompatible QoS (RELIABILITY)
 ```
-
 Make subscriber(s) use **sensor QoS** (best-effort, volatile).
+
+
 --
+
 ### Optional: basic analysis & Flask
 
 * Write CSV/PNG to `ANALYSIS_DIR` from an analysis node.
